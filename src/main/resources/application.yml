@@ -2,11 +2,13 @@ server:
   port: 8080
 
 spring:
+  profiles:
+    active: default
   datasource:
-    url: jdbc:postgresql://localhost:5432/inventory-sept
+    url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
-    username: postgres
-    password: postgres
+    username: sa
+    password:
 
   jpa:
     hibernate:
