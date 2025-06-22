@@ -1,6 +1,5 @@
 package com.septian.inventoryapp.service;
 
-import com.septian.inventoryapp.model.entity.ItemEntity;
 import com.septian.inventoryapp.model.request.SaveItemRequest;
 import com.septian.inventoryapp.model.response.BaseResponse;
 import com.septian.inventoryapp.model.response.ItemResponse;

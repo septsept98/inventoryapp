@@ -84,7 +84,6 @@ public class InventoryService implements IInventoryService{
     @Override
     public void updateInventory(SaveInventRequest inventRequest, String method) {
         validateRequest(inventRequest, method);
-        InventoryEntity inventoryEntity = new InventoryEntity();
         Optional<ItemEntity> itemOptional = itemRepository.findById(inventRequest.getItemId());
         if (itemOptional.isPresent()) {
             Optional<InventoryEntity> inventItemExistOptional = inventReposity.findById(inventRequest.getId());

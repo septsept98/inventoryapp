@@ -4,7 +4,6 @@ import com.septian.inventoryapp.model.dto.ErrorException;
 import com.septian.inventoryapp.model.entity.InventoryEntity;
 import com.septian.inventoryapp.model.entity.ItemEntity;
 import com.septian.inventoryapp.model.entity.OrderEntity;
-import com.septian.inventoryapp.model.request.SaveInventRequest;
 import com.septian.inventoryapp.model.request.SaveOrderRequest;
 import com.septian.inventoryapp.model.response.BaseResponse;
 import com.septian.inventoryapp.model.response.OrderResponse;

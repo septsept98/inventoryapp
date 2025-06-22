@@ -71,9 +71,7 @@ public class ItemServiceTest {
     void testGetById_notFound() {
         Mockito.when(itemRepository.findById(2)).thenReturn(Optional.empty());
 
-        ErrorException exception = Assertions.assertThrows(ErrorException.class, () -> {
-            itemService.getById(2);
-        });
+        ErrorException exception = Assertions.assertThrows(ErrorException.class, () -> itemService.getById(2));
 
         Assertions.assertEquals("Item 2 Not Found", exception.getMessage());
     }
@@ -94,9 +92,7 @@ public class ItemServiceTest {
         SaveItemRequest req = new SaveItemRequest();
         req.setName("");
 
-        ErrorException exception = Assertions.assertThrows(ErrorException.class, () -> {
-            itemService.saveItem(req);
-        });
+        ErrorException exception = Assertions.assertThrows(ErrorException.class, () -> itemService.saveItem(req));
 
         Assertions.assertEquals("name cannot be null", exception.getMessage());
     }
@@ -130,9 +126,7 @@ public class ItemServiceTest {
 
         Mockito.when(itemRepository.findById(99)).thenReturn(Optional.empty());
 
-        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> {
-            itemService.updateItem(req);
-        });
+        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> itemService.updateItem(req));
 
         Assertions.assertEquals("Item 99 Not Found", ex.getMessage());
     }
@@ -160,9 +154,7 @@ public class ItemServiceTest {
         Mockito.when(inventoryReposity.countItemUsed(2)).thenReturn(1L);
         Mockito.when(orderRepository.countItemUsed(2)).thenReturn(0L);
 
-        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> {
-            itemService.deleteItem(2);
-        });
+        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> itemService.deleteItem(2));
 
         Assertions.assertEquals("Item 2 Already Used", ex.getMessage());
     }
@@ -171,9 +163,7 @@ public class ItemServiceTest {
     void testDeleteItem_notFound() {
         Mockito.when(itemRepository.findById(3)).thenReturn(Optional.empty());
 
-        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> {
-            itemService.deleteItem(3);
-        });
+        ErrorException ex = Assertions.assertThrows(ErrorException.class, () -> itemService.deleteItem(3));
 
         Assertions.assertEquals("Item 3 Not Found", ex.getMessage());
     }
