@@ -18,6 +18,6 @@ public class ExceptionHandling extends ResponseEntityExceptionHandler {
         Map<String, String> body = new HashMap<>();
         body.put("message", ex.getMessage());
         body.put("errorReason", ex.getErrorReason());
-        return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(body, ex.getStatus());
     }
 }
