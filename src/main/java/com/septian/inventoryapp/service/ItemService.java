@@ -13,6 +13,7 @@ import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -20,14 +21,16 @@ import java.util.Optional;
 
 @Service
 public class ItemService implements IItemService{
-    @Autowired
-    ItemRepository itemRepository;
+    public final ItemRepository itemRepository;
+    public final InventoryReposity inventoryReposity;
+    public final OrderRepository orderRepository;
 
     @Autowired
-    InventoryReposity inventoryReposity;
-
-    @Autowired
-    OrderRepository orderRepository;
+    public ItemService(ItemRepository itemRepository, InventoryReposity inventoryReposity, OrderRepository orderRepository) {
+        this.itemRepository = itemRepository;
+        this.inventoryReposity = inventoryReposity;
+        this.orderRepository = orderRepository;
+    }
 
     @Override
     public BaseResponse<ItemResponse> getById(Integer id) {
@@ -45,7 +48,7 @@ public class ItemService implements IItemService{
             response.setContent(itemRes);
             response.setMessage("Success");
         } else {
-            throw new ErrorException("Item "+id+" Not Found","Bad Request");
+            throw new ErrorException("Item "+id+" Not Found","Bad Request", HttpStatus.NOT_FOUND);
         }
 
         return response;
@@ -79,7 +82,7 @@ public class ItemService implements IItemService{
             res.setContent(itemResponse);
             res.setMessage("Updated!");
         } else {
-            throw new ErrorException("Item "+itemRequest.getId()+" Not Found","Bad Request");
+            throw new ErrorException("Item "+itemRequest.getId()+" Not Found","Bad Request", HttpStatus.BAD_REQUEST);
         }
         return res;
     }
@@ -93,10 +96,10 @@ public class ItemService implements IItemService{
             if (itemExistOrder <=0 && itemExistInvent <= 0) {
                 itemRepository.deleteById(id);
             } else {
-                throw new ErrorException("Item "+id+" Already Used","Bad Request");
+                throw new ErrorException("Item "+id+" Already Used","Bad Request", HttpStatus.BAD_REQUEST);
             }
         } else {
-            throw new ErrorException("Item "+id+" Not Found","Bad Request");
+            throw new ErrorException("Item "+id+" Not Found","Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -118,11 +121,11 @@ public class ItemService implements IItemService{
     public void validateRequest(SaveItemRequest itemRequest, String method){
         if (method.equals("UPDATE")) {
             if (itemRequest.getId() == null) {
-                throw new ErrorException("id cannot be null", "Bad Request");
+                throw new ErrorException("id cannot be null", "Bad Request", HttpStatus.BAD_REQUEST);
             }
         }
         if (StringUtils.isBlank(itemRequest.getName())){
-            throw new ErrorException("name cannot be null","Bad Request");
+            throw new ErrorException("name cannot be null","Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 }

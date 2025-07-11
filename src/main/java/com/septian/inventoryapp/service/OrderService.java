@@ -14,6 +14,7 @@ import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -23,24 +24,26 @@ import java.util.Optional;
 
 @Service
 public class OrderService implements IOrderService{
-    @Autowired
-    OrderRepository orderRepository;
+    public final OrderRepository orderRepository;
+    public final ItemRepository itemRepository;
+    public final InventoryReposity inventoryReposity;
 
     @Autowired
-    ItemRepository itemRepository;
-
-    @Autowired
-    InventoryReposity inventoryReposity;
+    public OrderService(OrderRepository orderRepository, ItemRepository itemRepository, InventoryReposity inventoryReposity) {
+        this.orderRepository = orderRepository;
+        this.itemRepository = itemRepository;
+        this.inventoryReposity = inventoryReposity;
+    }
 
     public void validateRequest(SaveOrderRequest request){
         if (StringUtils.isBlank(request.getOrderId())){
-            throw new ErrorException("OrderId Cannot Null","Bad Request");
+            throw new ErrorException("OrderId Cannot Null","Bad Request", HttpStatus.BAD_REQUEST);
         }
         if (request.getItemId() == null){
-            throw new ErrorException("ItemId Cannot Null","Bad Request");
+            throw new ErrorException("ItemId Cannot Null","Bad Request", HttpStatus.BAD_REQUEST);
         }
         if (request.getQty()<=0){
-            throw new ErrorException("The Quantity Must be Greater Than 0", "Bad Request");
+            throw new ErrorException("The Quantity Must be Greater Than 0", "Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -53,7 +56,7 @@ public class OrderService implements IOrderService{
             if (itemEntityOptional.isPresent()){
                 List<InventoryEntity> inventList = inventoryReposity.getByItemId(request.getItemId());
                 if (inventList.isEmpty()){
-                    throw new ErrorException("Inventory Item Not Found", "Bad Request");
+                    throw new ErrorException("Inventory Item Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
                 }
                 InventoryEntity inventExistT = inventList.stream()
                         .filter(invent -> invent.getType().equalsIgnoreCase("T"))
@@ -69,10 +72,10 @@ public class OrderService implements IOrderService{
                         inventExistT.setQty(inventExistT.getQty()- request.getQty());
                         inventoryReposity.save(inventExistT);
                     } else {
-                        throw new ErrorException("The Item Stock is Insufficient","Bad Request");
+                        throw new ErrorException("The Item Stock is Insufficient","Bad Request", HttpStatus.BAD_REQUEST);
                     }
                 } else {
-                    throw new ErrorException("Top Up Inventory First","Bad Request");
+                    throw new ErrorException("Top Up Inventory First","Bad Request", HttpStatus.BAD_REQUEST);
                 }
 
                 if (!ObjectUtils.isEmpty(inventExistW)){
@@ -93,10 +96,10 @@ public class OrderService implements IOrderService{
                 orderEntity.setPrice(itemEntityOptional.get().getPrice().multiply(BigDecimal.valueOf(request.getQty())));
                 orderRepository.save(orderEntity);
             } else {
-                throw new ErrorException("Item Not Found", "Bad Request");
+                throw new ErrorException("Item Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
             }
         } else {
-            throw new ErrorException("OrderId Already Used","Bad Request");
+            throw new ErrorException("OrderId Already Used","Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -110,7 +113,7 @@ public class OrderService implements IOrderService{
                 List<InventoryEntity> inventList = inventoryReposity.getByItemId(request.getItemId());
 
                 if (inventList.isEmpty())
-                    throw new ErrorException("Inventory Item Not Found", "Bad Request");
+                    throw new ErrorException("Inventory Item Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
 
                 InventoryEntity inventExistT = inventList.stream()
                         .filter(invent -> invent.getType().equalsIgnoreCase("T"))
@@ -129,9 +132,9 @@ public class OrderService implements IOrderService{
                             inventExistT.setQty(inventExistT.getQty() - difQty);
                             inventoryReposity.save(inventExistT);
                         } else
-                            throw new ErrorException("The Item Stock is Insufficient","Bad Request");
+                            throw new ErrorException("The Item Stock is Insufficient","Bad Request", HttpStatus.BAD_REQUEST);
                     } else {
-                        throw new ErrorException("Top Up Inventory First","Bad Request");
+                        throw new ErrorException("Top Up Inventory First","Bad Request", HttpStatus.BAD_REQUEST);
                     }
                     if (!ObjectUtils.isEmpty(inventExistW)){
                         inventExistW.setQty(inventExistW.getQty() + difQty);
@@ -144,7 +147,7 @@ public class OrderService implements IOrderService{
                         inventExistT.setQty(inventExistT.getQty() + difQty);
                         inventoryReposity.save(inventExistT);
                     } else {
-                        throw new ErrorException("Top Up Inventory First","Bad Request");
+                        throw new ErrorException("Top Up Inventory First","Bad Request", HttpStatus.BAD_REQUEST);
                     }
                     if (!ObjectUtils.isEmpty(inventExistW)){
                         inventExistW.setQty(inventExistW.getQty() - difQty);
@@ -155,10 +158,10 @@ public class OrderService implements IOrderService{
                 orderEntityExist.setPrice(inventExistT.getItem().getPrice().multiply(BigDecimal.valueOf(request.getQty())));
                 orderRepository.save(orderEntityExist);
             } else {
-                throw new ErrorException("Cannot Change Item", "Bad Request");
+                throw new ErrorException("Cannot Change Item", "Bad Request", HttpStatus.BAD_REQUEST);
             }
         } else {
-            throw new ErrorException("OrderId Not Found","Bad Request");
+            throw new ErrorException("OrderId Not Found","Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -168,7 +171,7 @@ public class OrderService implements IOrderService{
         if (orderEntity.isPresent()){
             orderRepository.deleteById(id);
         } else {
-            throw new ErrorException("Order Not Found", "Bad Request");
+            throw new ErrorException("Order Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -187,10 +190,10 @@ public class OrderService implements IOrderService{
                 response.setQty(orderOptional.get().getQty());
                 response.setPrice(orderOptional.get().getPrice());
             } else {
-                throw new ErrorException("Item Not Found", "Bad Request");
+                throw new ErrorException("Item Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
             }
         } else {
-            throw new ErrorException("Order Not Found", "Bad Request");
+            throw new ErrorException("Order Not Found", "Bad Request", HttpStatus.BAD_REQUEST);
         }
         return new BaseResponse<>("Success",response);
     }
